@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            text-align: center;
+            margin-left: 10%;
+            margin-right: 50%;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular',
+                          'Lucida Grande', 'Lucida Sans Unicode',
+                          Geneva, Verdana, sans-serif;
+        }
+        input, button {
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular',
+                          'Lucida Grande', 'Lucida Sans Unicode',
+                          Geneva, Verdana, sans-serif;
+            text-align: center;
+        }
+        .error {
+            border-color: red;
+            background-color: #fdd;
+        }
+        .valid {
+            border-color: #ccc;
+            background-color: white;
+        }
+        .message {
+            color: red;
+            font-size: 14px;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-group label {
+            margin-right: 10px;
+        }
+        .form-group .message {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .submit-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .error-messages {
+            margin-left: 20px;
+            font-size: 14px;
+            color: red;
+            display: inline-block;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div align="center">
+        <h1>Booking your place for your dinner!</h1>
+
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" size="22" onblur="validateName()" class="valid">
+            <span class="message" id="nameMessage">...</span>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" size="22" onblur="validatePhone()" class="valid">
+            <span class="message" id="phoneMessage">...</span>
+        </div>
+
+        <div>
+            <h2>Select a time</h2>
+            <input type="radio" id="first" name="seating" value="5" checked>
+            <label for="first">5:00</label><br>
+            <input type="radio" id="second" name="seating" value="6">
+            <label for="second">6:00</label><br>
+            <input type="radio" id="third" name="seating" value="7">
+            <label for="third">7:00</label><br>
+            <input type="radio" id="fourth" name="seating" value="8">
+            <label for="fourth">8:00</label><br>
+            <br>
+
+            <h2>What would you like to have with us?</h2>
+            <input type="checkbox" id="starters" name="meal" value="starters">
+            <label for="starters">Starters</label><br>
+            <input type="checkbox" id="main" name="meal" value="main">
+            <label for="main">Main Course</label><br>
+            <input type="checkbox" id="dessert" name="meal" value="dessert">
+            <label for="dessert">Dessert</label><br>
+            <input type="checkbox" id="drinks" name="meal" value="drinks">
+            <label for="drinks">Drinks</label><br>
+        </div>
+
+        <div class="submit-container">
+            <button id="submit" disabled>Submit</button>
+            <div class="error-messages" id="errorMessages">
+                <span id="nameError"></span><br>
+                <span id="phoneError"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- This is where the reservation details will be displayed -->
+    <div id="result" class="result"></div>
+
+    <script>
+        function validateName() {
+            const nameInput = document.getElementById("name");
+            const name = nameInput.value.trim();
+            const nameError = document.getElementById("nameError");
+
+            if (name === "") {
+                nameError.textContent = "Error: Name is empty.";
+                nameInput.classList.add("error");
+                nameInput.classList.remove("valid");
+                return false;
+            }
+
+            if (!name.includes(" ") || name.split(" ").filter(Boolean).length < 2) {
+                nameError.textContent = "Error: First and last names are required.";
+                nameInput.classList.add("error");
+                nameInput.classList.remove("valid");
+                return false;
+            }
+
+            nameError.textContent = "";
+            nameInput.classList.add("valid");
+            nameInput.classList.remove("error");
+            return true;
+        }
+
+        function validatePhone() {
+            const phoneInput = document.getElementById("phone");
+            const phone = phoneInput.value.trim();
+            const phoneError = document.getElementById("phoneError");
+
+            if (phone === "") {
+                phoneError.textContent = "Error: Phone number is empty.";
+                phoneInput.classList.add("error");
+                phoneInput.classList.remove("valid");
+                return false;
+            }
+
+            if (!/^[0-9]/.test(phone)) {
+                phoneError.textContent = "Error: Phone number must start with a number.";
+                phoneInput.classList.add("error");
+                phoneInput.classList.remove("valid");
+                return false;
+            }
+
+            if (phone.length !== 6) {
+                phoneError.textContent = "Error: Phone numbers must have exactly 6 characters.";
+                phoneInput.classList.add("error");
+                phoneInput.classList.remove("valid");
+                return false;
+            }
+
+            phoneError.textContent = "";
+            phoneInput.classList.add("valid");
+            phoneInput.classList.remove("error");
+            return true;
+        }
+
+        function validateForm() {
+            const isNameValid = validateName();
+            const isPhoneValid = validatePhone();
+
+            const submitButton = document.getElementById("submit");
+
+            if (isNameValid && isPhoneValid) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        function handleSubmit() {
+            const name = document.getElementById("name").value;
+            const phone = document.getElementById("phone").value;
+            const selectedTime = document.querySelector('input[name="seating"]:checked').value;
+            let selectedMeals = [];
+
+            if (document.getElementById("starters").checked) selectedMeals.push("Starters");
+            if (document.getElementById("main").checked) selectedMeals.push("Main Course");
+            if (document.getElementById("dessert").checked) selectedMeals.push("Desserts");
+            if (document.getElementById("drinks").checked) selectedMeals.push("Drinks");
+
+            const mealList = selectedMeals.length > 0 ? selectedMeals.join(", ") : "None";
+
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = `
+                <p>Reservation for: <strong>${name}</strong> Phone: (<strong>${phone}</strong>) at <strong>${selectedTime}:00</strong></p>
+                <p>Starters are: ${mealList}</p>
+            `;
+        }
+
+        document.getElementById("name").addEventListener("input", validateForm);
+        document.getElementById("phone").addEventListener("input", validateForm);
+        
+        document.getElementById("submit").addEventListener("click", function(event) {
+            event.preventDefault();
+            if (!document.getElementById("submit").disabled) {
+                handleSubmit();
+            }
+        });
+    </script>
+</body>
+</html>
